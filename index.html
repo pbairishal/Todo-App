@@ -1,0 +1,177 @@
+<html>
+
+<head>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css'>
+    <link rel='stylesheet' href='style.css'>
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js'></script>
+</head>
+<button class="logout" onclick="googleSignout()">Logout</button>
+<div class="navbar text-center">
+    <a href="#">To do List</a>
+</div>
+
+<button class="login-btn big gog thick" onclick="googleSignin()">
+    <i class="fa fa-google"></i>
+    <span>Login with Google</span>
+</button>
+
+<div class="container dataContainer">
+    <div class="row text-center horizontal-center-row">
+        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Enter a Name" id="txtSearch" />
+                <div class="input-group-btn">
+                    <button class="btn btn-primary" type="submit" id="submit"><b>Submit</b></button>
+                    <button class="btn btn-success" type="submit" id="update"><b>Update</b></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="message"></div>
+    </div>
+</div>
+
+<script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyD7ckgwFMGVMeC6ou5tlEujfMDGnrfn98o",
+        authDomain: "appiness-todo.firebaseapp.com",
+        databaseURL: "https://appiness-todo.firebaseio.com",
+        projectId: "appiness-todo",
+        storageBucket: "",
+        messagingSenderId: "739492132439"
+    };
+    firebase.initializeApp(config);
+</script>
+
+<script>
+    $("#update").hide();
+    $(".dataContainer").hide();
+
+    var provider = new firebase.auth.GoogleAuthProvider();
+
+    function googleSignin() {
+        firebase.auth()
+            .signInWithPopup(provider).then(function(result) {
+                //var token = result.credential.accessToken;
+                var userId = result.user.uid;
+
+                readUserData(userId);
+                $(".dataContainer").show();
+
+                $('#submit').on('click', function() {
+                    console.log(userId);
+                    var submitVal = $('#txtSearch').val();
+                    var date = Date();
+                    writeUserData(userId, date, submitVal);
+                    $('#txtSearch').val("");
+                });
+
+                $("#update").on("click", function() {
+                    var submitVal = $('#txtSearch').val();
+                    var date = Date();
+                    updateUserData(userId, date, submitVal, curvalue);
+                    $("#update").hide();
+                    $("#submit").show();
+                    $('#txtSearch').val("");
+                });
+
+                $('body').on('click', '#closeDiv', function() {
+                    $(this).parent().parent().remove();
+                    value = $(this).parent().find("h4").text();
+                    deleteUserData(userId, value);
+                });
+
+            }).catch(function(error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(error.code)
+                console.log(error.message)
+            });
+    }
+
+    function googleSignout() {
+        firebase.auth().signOut()
+            .then(function() {
+                $(".dataContainer").hide();
+                console.log('Signout Succesfull')
+            }, function(error) {
+                console.log('Signout Failed')
+            });
+    }
+
+
+    function writeUserData(userId, date, submitVal) {
+        firebase.database().ref('users/' + userId).push({
+            Date: date,
+            Todo: submitVal
+        });
+    }
+
+    function updateUserData(userId, date, submitVal, curvalue) {
+        var db = firebase.database();
+        var query = db.ref('users/' + userId).orderByChild("Todo").equalTo(curvalue);
+        query.once("child_added", function(snapshot) {
+            snapshot.ref.set({
+                Date: date,
+                Todo: submitVal
+            });
+        });
+    }
+
+    function deleteUserData(userId, value) {
+        var db = firebase.database();
+        var query = db.ref('users/' + userId).orderByChild("Todo").equalTo(value);
+        query.once("child_added", function(snapshot) {
+            snapshot.ref.set(null);
+        });
+    }
+
+    function readUserData(userId) {
+        var starCountRef = firebase.database().ref('users/' + userId);
+        starCountRef.on('value', function(snapshot) {
+            data = snapshot.val();
+            eachData(data);
+        });
+    }
+
+    function eachData(data) {
+        text = "";
+        $.each(data, function(key, val) {
+            render(val);
+        });
+        $(".message").html(text);
+    }
+
+    function render(val) {
+        text += "<div><div class='data'>";
+        text += "<h4 class='inline h4tag'>" + val.Todo + "</h4>";
+        text += "<button class='inline btn btn-danger btn-xs' type='submit' id='closeDiv'><span class='fa fa-remove'><b>REMOVE</b></span></button>";
+        text += "<button class='inline btn btn-default btn-xs' type='submit' id='editDiv'><span class='fa fa-pencil'><b>EDIT</b></span></button>";
+        text += "</div><br></div>";
+    }
+
+    $('body').on('click', '#editDiv', function() {
+        $("#submit").hide();
+        $("#update").show();
+        curvalue = $(this).parent().find("h4").text();
+        $('#txtSearch').val(curvalue);
+        thisEdit = $(this);
+    });
+</script>
+    <script>
+    
+ $('#myCarousel').carousel({
+  interval: 12000,
+  cycle: true
+});
+    $('#myCarousel1').carousel({
+  interval: 10000,
+  cycle: true
+});
+    
+</script>

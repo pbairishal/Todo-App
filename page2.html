@@ -1,0 +1,60 @@
+
+
+<html>
+<head>
+  <meta name="google-signin-client_id" content="887297167940-6bd8r321f281a0ks1ha7cgpblud8oveg">
+    <meta name="google-signin-scope" content="profile email">
+</head>
+<style>
+    
+.center-div
+{
+        width: 340px;
+    height: 70px;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+} 
+    .navbar {
+    overflow: hidden;
+    background-color:#212121;
+    opacity:0.8;
+    top: 0;
+    width: 100%;
+    height: 130px;
+        
+    }
+    
+</style>    
+    
+<body>
+    <div class="navbar">
+			<b>To Do List </b>
+	</div>
+    <div id="my-signin2" class="center-div"></div>
+  <script>
+    function onSuccess(googleUser) {
+      console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+    }
+    function onFailure(error) {
+      console.log(error);
+    }
+    function renderButton() {
+      gapi.signin2.render('my-signin2', {
+        'scope': 'profile email',
+        'width': 340,
+        'height': 70,
+        'longtitle': true,
+        'theme': 'dark',
+        'onsuccess': onSuccess,
+        'onfailure': onFailure
+      });
+    }
+  </script>
+
+  <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+</body>
+</html>
